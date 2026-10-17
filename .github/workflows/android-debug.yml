@@ -10,6 +10,9 @@ jobs:
     if: github.ref == 'refs/heads/kawanan-island'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
     env:
       TOOLS_DIR: ${{ github.workspace }}/../kawanan-tools
       XDG_DATA_HOME: ${{ github.workspace }}/../kawanan-data
@@ -18,22 +21,50 @@ jobs:
       ANDROID_USER_HOME: ${{ github.workspace }}/../kawanan-android-user
     steps:
       - uses: actions/checkout@v4
-      - name: Install Vulkan and virtual display dependencies
-        run: sudo apt-get update && sudo apt-get install -y xvfb mesa-vulkan-drivers
+      - name: Install build and regression dependencies
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth mesa-vulkan-drivers ripgrep coreutils curl unzip python3
       - name: Install verified Godot and Android tools
         run: |
           bash scripts/android/setup.sh
           echo "JAVA_HOME=$TOOLS_DIR/jdk-17.0.18+8" >> "$GITHUB_ENV"
           echo "ANDROID_HOME=$TOOLS_DIR/android-sdk" >> "$GITHUB_ENV"
           echo "GODOT_BIN=$TOOLS_DIR/godot-4.4/Godot_v4.4-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Check regression tools
+        run: |
+          for tool in bash rg timeout mktemp cat tee; do
+            if ! command -v "$tool"; then
+              echo "::error::Missing required regression tool: $tool"
+              exit 127
+            fi
+          done
+          rg --version
+          timeout --version
+          "$GODOT_BIN" --version
       - name: Import resources with Vulkan
         run: |
           mkdir -p builds/android
-          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --editor --import > builds/android/import.log 2>&1
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --editor --import 2>&1 | tee builds/android/import.log
       - name: Run Sprint 001, 002 and 003 regressions
-        run: bash tests/run.sh > builds/android/regressions.log 2>&1
+        shell: bash
+        run: |
+          set -o pipefail
+          bash tests/run.sh 2>&1 | tee builds/android/regressions.log
       - name: Export and inspect signed debug APK
-        run: bash scripts/android/build.sh > builds/android/build.log 2>&1
+        shell: bash
+        run: |
+          set -o pipefail
+          bash scripts/android/build.sh 2>&1 | tee builds/android/build.log
+      - name: Display failure logs
+        if: failure()
+        shell: bash
+        run: |
+          for log in builds/android/import.log builds/android/regressions.log builds/android/build.log; do
+            if test -f "$log"; then
+              echo "::group::$log"
+              cat "$log"
+              echo '::endgroup::'
+            fi
+          done
       - name: Upload internal test build and validation logs
         if: always()
         uses: actions/upload-artifact@v4

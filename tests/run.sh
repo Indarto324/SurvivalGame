@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd "$(dirname "$0")/.."
 GODOT_BIN=${GODOT_BIN:-godot}
+# Fail before loading a scene when a runner dependency is missing.
+for tool in rg timeout mktemp cat dirname rm "$GODOT_BIN"; do
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "ERROR: Missing required regression command: $tool (install ripgrep/coreutils and set GODOT_BIN to Godot 4.4)." >&2
+    exit 127
+  fi
+done
+cd "$(dirname "$0")/.."
 case "$("$GODOT_BIN" --version)" in
   4.4.*) ;;
   *) echo 'Gameplay regressions require Godot 4.4.' >&2; exit 1 ;;
