@@ -22,6 +22,7 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	inventory.resize(INVENTORY_SIZE)
 	hotbar.resize(HOTBAR_SIZE)
+	EventSystem.INV_hotbar_updated.emit(hotbar)
 
 
 func send_inventory() -> void:
@@ -57,7 +58,7 @@ func switch_two_item_indexes(slot1:int, slot1_is_hotbar_slot:bool, slot2:int, sl
 func get_free_slots() -> int:
 	var free_slots := 0
 	for slot in inventory:
-		if not slot:
+		if slot == null:
 			free_slots += 1
 	
 	return free_slots

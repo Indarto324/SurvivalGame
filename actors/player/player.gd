@@ -6,7 +6,7 @@ class_name Player
 @export var sprint_speed := 5.0
 @export var walking_energy_consumption_per_1m := -0.05
 @export var jump_velocity := 4.0
-@export var gravity := 0.2
+@export var gravity := 12.0
 @export var mouse_sensitivity := 0.005
 @export var walking_footstep_audio_interval := 0.6
 @export var sprinting_footstep_audio_interval := 0.3
@@ -46,14 +46,14 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	move()
+	move(delta)
 	check_walking_consumption(delta)
 	
 	if Input.is_action_just_pressed("use_equipped_item"):
 		item_holder.try_to_use_item()
 
 
-func move():
+func move(delta: float) -> void:
 	if is_on_floor():
 		is_sprinting = Input.is_action_pressed("sprint")
 		
@@ -69,7 +69,7 @@ func move():
 			EventSystem.SFX_play_dynamic_sfx.emit(SFXConfig.Keys.JumpLand, global_position)
 	
 	else:
-		velocity.y -= gravity
+		velocity.y -= gravity * delta
 		
 		if is_grounded:
 			is_grounded = false

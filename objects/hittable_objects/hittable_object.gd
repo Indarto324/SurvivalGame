@@ -12,6 +12,14 @@ func _ready() -> void:
 		remove_child(residue_static_body)
 
 
+func _notification(what: int) -> void:
+	# An unharvested tree owns a detached stump until it dies. Detached
+	# nodes are not freed with their former parent on a stage change.
+	if what == NOTIFICATION_PREDELETE and is_instance_valid(residue_static_body):
+		if residue_static_body.get_parent() == null:
+			residue_static_body.free()
+
+
 func register_hit(weapon_item_resource:WeaponItemResource) -> void:
 	if not attributes.weapon_filter.is_empty() and not weapon_item_resource.item_key in attributes.weapon_filter:
 		return

@@ -13,6 +13,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	hotbar_updated(get_node("../InventoryManager").hotbar)
 	EventSystem.EQU_active_hotbar_slot_updated.emit(null)
 
 

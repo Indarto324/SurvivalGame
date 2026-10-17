@@ -12,20 +12,21 @@ func _enter_tree() -> void:
 
 func spawn_scene(scene:PackedScene, tform:Transform3D, is_constructable := false) -> void:
 	var object := scene.instantiate()
-	object.global_transform = tform
 	
 	if is_constructable:
 		constructable_holder.add_child(object)
+		object.global_transform = tform
 		EventSystem.GAM_update_navmesh.emit()
 	
 	else:
 		object_holder.add_child(object)
+		object.global_transform = tform
 
 
 func spawn_vfx(scene:PackedScene, tform:Transform3D) -> void:
 	var vfx := scene.instantiate()
-	vfx.global_transform = tform
 	add_child(vfx)
+	vfx.global_transform = tform
 	
 	if vfx is GPUParticles3D:
 		vfx.emitting = true

@@ -14,6 +14,11 @@ func _enter_tree() -> void:
 	EventSystem.PLA_change_health.connect(change_health)
 
 
+func _ready() -> void:
+	EventSystem.PLA_energy_updated.emit(MAX_ENERGY, current_energy)
+	EventSystem.PLA_health_updated.emit(MAX_HEALTH, current_health)
+
+
 func change_energy(amount:float) -> void:
 	current_energy += amount
 	
@@ -25,7 +30,7 @@ func change_energy(amount:float) -> void:
 
 
 func change_health(amount:float) -> void:
-	current_health += amount
+	current_health = clampf(current_health + amount, 0, MAX_HEALTH)
 	EventSystem.PLA_health_updated.emit(MAX_HEALTH, current_health)
 	
 	if current_health <= 0:

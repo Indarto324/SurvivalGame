@@ -1,0 +1,14 @@
+# Kawanan Island licensing review — Sprint 001
+
+Review date: 2026-10-17. This is an inventory of evidence in this checkout, not a grant of rights or a legal opinion. No assets were removed or relicensed in this sprint.
+
+| Material | Evidence found | Limitation / next action |
+| --- | --- | --- |
+| Original gameplay GDScript, scenes, documentation | No root LICENSE or COPYING. README describes following Eerik Hirvonen's Udemy course and links an upstream screenshot from afarber/SurvivalGame. | A public GitHub repository alone does not establish permission to redistribute, sublicense, or commercially ship its contents. Confirm the original authors' license/permission and course terms before distribution. Repository access and permission to commit this sprint do not settle those rights. |
+| Proton Scatter | `addons/proton_scatter/LICENSE`: MIT, Copyright (c) 2019 HungryProton. | Retain its copyright and complete MIT notice when distributing copies or substantial portions. Its license covers that addon, not the entire game. |
+| Animal models / animations | In-game credits say “Animals by Quaternius”. | Attribution establishes a claimed author, not the specific pack, download source, or license version. Identify the exact animal pack and retain its original license/provenance. Do not assume every animal file is cleared from the credit alone. |
+| Other models, terrain, textures, UI, item icons, particles | Assets are committed; no per-pack license or provenance manifest found. | Record creator, original download URL, pack/version, license and attribution for each group. Similarity to a known asset pack is insufficient evidence. |
+| Music and sound effects | Files include `transfixed_main_theme.ogg`, `autumn_ending_theme.ogg`, `island_ambience.ogg`, and SFX. No bundled license/author metadata establishing redistribution rights found. | Obtain source and license for every track and sound, including commercial/mobile use and attribution requirements. Filenames alone do not establish rights. |
+| Godot engine | Engine is installed separately; not added to this repository. | Preserve Godot's MIT notice and applicable bundled third-party notices in a future distributed build. See https://godotengine.org/license/ and https://docs.godotengine.org/en/4.4/about/complying_with_licenses.html. |
+
+Before any public game release, paid release, app-store submission, or separately redistributed asset bundle, resolve the unknown source/asset permissions and prepare a complete third-party notices file. Keep existing credits and license notices in place. Do not add a blanket project license that purports to cover third-party or course-derived material without authority. Android export templates, plugins, signing and store requirements have not been introduced or reviewed in this sprint.

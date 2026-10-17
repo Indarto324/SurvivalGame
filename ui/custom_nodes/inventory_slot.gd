@@ -11,7 +11,7 @@ var display_name
 var description
 
 
-func _enter_tree() -> void:
+func _ready() -> void:
 	mouse_entered.connect(send_description)
 	mouse_exited.connect(hide_description)
 

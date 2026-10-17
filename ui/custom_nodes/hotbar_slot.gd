@@ -5,6 +5,7 @@ const ACTIVE_COLOR = Color.WHITE
 const INACTIVE_COLOR = Color(0.8, 0.8, 0.8, 0.6)
 
 func _ready() -> void:
+	super()
 	$HotkeyTextureRect/HotkeyLabel.text = str(get_index() + 1)
 
 func _can_drop_data(_at_position: Vector2, slot: Variant) -> bool:

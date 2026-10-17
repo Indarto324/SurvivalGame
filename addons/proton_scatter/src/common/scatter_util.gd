@@ -454,6 +454,7 @@ static func get_collision_data(item: ProtonScatterItem) -> StaticBody3D:
 			if child is CollisionShape3D:
 				# Don't use reparent() here or the child transform gets reset.
 				body.remove_child(child)
+				child.owner = null
 				static_body.add_child(child)
 
 	source.queue_free()

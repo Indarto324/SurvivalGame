@@ -12,8 +12,8 @@ func _ready() -> void:
 
 
 func hide_hud() -> void:
-	remove_child(hud)
+	hud.hide()
 
 
 func show_hud() -> void:
-	add_child(hud)
+	hud.show()
