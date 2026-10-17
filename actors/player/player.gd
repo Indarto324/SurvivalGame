@@ -12,7 +12,7 @@ class_name Player
 @export var sprinting_footstep_audio_interval := 0.3
 
 @onready var camera_rig: MainCamera = $CameraRig
-@onready var character_visuals: Node3D = $CharacterVisuals
+@onready var character_visuals: CharacterAnimator = $CharacterVisuals
 @onready var equipment_pivot: Node3D = $EquipmentPivot
 @onready var interaction_ray_cast: RayCast3D = %InteractionRayCast
 @onready var item_holder: Node3D = %ItemHolder
@@ -60,6 +60,8 @@ func _physics_process(delta: float) -> void:
 		character_visuals.rotation.y = camera_rig.rotation.y
 		equipment_pivot.rotation = camera_rig.rotation
 		item_holder.try_to_use_item()
+
+	character_visuals.advance(delta, get_real_velocity(), is_on_floor(), is_sprinting, normal_speed)
 
 
 func move(delta: float) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://bb4ajqrspiuc8"]
+[gd_scene load_steps=20 format=3 uid="uid://bb4ajqrspiuc8"]
 
 [ext_resource type="Script" uid="uid://cim3fir67nrhp" path="res://actors/player/player.gd" id="1_u4shn"]
 [ext_resource type="Script" uid="uid://b65ggtgyjs8kq" path="res://actors/player/interaction_ray_cast.gd" id="2_3wla4"]
@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://bm06v0r6jvxc1" path="res://game/managers/equipped_item_manager.gd" id="4_tgk6a"]
 [ext_resource type="Script" uid="uid://3ry0b17yk7ui" path="res://game/managers/player_stats_manager.gd" id="7_2amrl"]
 [ext_resource type="Script" uid="uid://clta8d425as5h" path="res://game/managers/sleep_manager.gd" id="8_u11tx"]
+
+[ext_resource type="Script" path="res://actors/player/character_animator.gd" id="9_animator"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1tkb2"]
 radius = 0.25
@@ -80,6 +82,7 @@ collide_with_areas = true
 script = ExtResource("2_3wla4")
 
 [node name="CharacterVisuals" type="Node3D" parent="."]
+script = ExtResource("9_animator")
 
 [node name="Torso" type="MeshInstance3D" parent="CharacterVisuals"]
 position = Vector3(0, 0.05, 0)

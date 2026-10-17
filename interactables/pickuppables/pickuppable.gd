@@ -11,5 +11,6 @@ func start_interaction() -> void:
 
 
 func destroy() -> void:
+	EventSystem.PLA_pickup_collected.emit()
 	EventSystem.SFX_play_sfx.emit(SFXConfig.Keys.ItemPickup)
 	object.queue_free()

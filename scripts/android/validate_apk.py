@@ -20,7 +20,7 @@ manifest = run('aapt', 'dump', 'xmltree', apk, 'AndroidManifest.xml')
 signature = run('apksigner', 'verify', '--verbose', '--print-certs', apk)
 alignment = run('zipalign', '-c', '-v', '4', apk)
 assert "package: name='com.kawanangames.kawananisland'" in badging
-assert "versionCode='2'" in badging and "versionName='0.5.0-dev'" in badging
+assert "versionCode='3'" in badging and "versionName='0.6.0-dev'" in badging
 assert "application-label:'Kawanan Island'" in badging
 assert "native-code: 'arm64-v8a'" in badging
 assert 'application-debuggable' in badging
@@ -51,7 +51,7 @@ for suffix, value in [('badging.txt',badging), ('manifest.txt',manifest), ('sign
 report = {
     'apk': apk.name, 'bytes': apk.stat().st_size,
     'sha256': hashlib.file_digest(apk.open('rb'), 'sha256').hexdigest(),
-    'package': 'com.kawanangames.kawananisland', 'version': '0.5.0-dev',
+    'package': 'com.kawanangames.kawananisland', 'version': '0.6.0-dev',
     'abis': abis, 'permissions': permissions, 'debuggable': True,
     'orientation': 'landscape', 'signature_v2_verified': True,
     'zip_crc_and_alignment': 'passed', 'physical_device_tested': False,

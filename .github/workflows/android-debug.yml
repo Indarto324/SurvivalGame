@@ -44,7 +44,7 @@ jobs:
         run: |
           mkdir -p builds/android
           xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --editor --import 2>&1 | tee builds/android/import.log
-      - name: Run Sprint 001, 002, 003 and 005 regressions
+      - name: Run Sprint 001, 002, 003, 005 and 006 regressions
         shell: bash
         run: |
           set -o pipefail

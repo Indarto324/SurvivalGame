@@ -21,6 +21,7 @@ signal INV_set_extra_info_label
 
 signal PLA_freeze_player
 signal PLA_unfreeze_player
+signal PLA_pickup_collected # Presentation notification after a successful pickup.
 signal PLA_change_energy
 signal PLA_energy_updated
 signal PLA_change_health
