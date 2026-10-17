@@ -30,11 +30,13 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	DeveloperTools.attach_player(self)
 	MobileInput.set_frozen(false)
 	EventSystem.HUD_show_hud.emit()
 
 
 func _exit_tree() -> void:
+	DeveloperTools.detach_player(self)
 	EventSystem.HUD_hide_hud.emit()
 
 
@@ -65,6 +67,10 @@ func _physics_process(delta: float) -> void:
 
 
 func move(delta: float) -> void:
+	if DeveloperTools.is_flying():
+		DeveloperTools.move_flight(delta)
+		return
+	DeveloperTools.record_ground()
 	var jump_requested := MobileInput.just_pressed("jump")
 	if is_on_floor():
 		is_sprinting = MobileInput.pressed("sprint")
@@ -86,7 +92,7 @@ func move(delta: float) -> void:
 		if is_grounded:
 			is_grounded = false
 	
-	var speed := normal_speed if not is_sprinting else sprint_speed
+	var speed := (normal_speed if not is_sprinting else sprint_speed) * DeveloperTools.movement_multiplier()
 	var input_dir := MobileInput.input_vector()
 	var direction := (Basis(Vector3.UP, camera_rig.global_rotation.y) * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if not direction.is_zero_approx():

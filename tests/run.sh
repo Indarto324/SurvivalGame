@@ -16,13 +16,34 @@ esac
 log_file=$(mktemp)
 trap 'rm -f "$log_file"' EXIT
 # Run all shipped regression scenes and reject errors even on exit zero.
-for sprint in 001 002 003 005 006; do
+for sprint in 001 002 003 005 006 007; do
+  args=()
+  if [[ "$sprint" == 007 ]]; then args=(-- --internal-dev); fi
   set +e
-  timeout --kill-after=10 180 "$GODOT_BIN" --headless --audio-driver Dummy --path "$PWD" "res://tests/sprint_${sprint}.tscn" >"$log_file" 2>&1
+  timeout --kill-after=10 180 "$GODOT_BIN" --headless --audio-driver Dummy --path "$PWD" "res://tests/sprint_${sprint}.tscn" "${args[@]}" >"$log_file" 2>&1
   result=$?
   set -e
   cat "$log_file"
   if (( result != 0 )); then exit "$result"; fi
   if rg -q 'SCRIPT ERROR:|^ERROR:|^FAIL:' "$log_file"; then exit 1; fi
   rg -q "^SPRINT ${sprint}: [1-9][0-9]* checks, 0 failures$" "$log_file"
+done
+
+# Gate checks also reject engine errors even if the script exits zero.
+GODOT_RELEASE_BIN=${GODOT_RELEASE_BIN:-$(dirname "$GODOT_BIN")/linux_release.x86_64}
+if [[ ! -x "$GODOT_RELEASE_BIN" ]]; then
+  echo "ERROR: Missing Godot 4.4 release template: $GODOT_RELEASE_BIN (run scripts/android/setup.sh)." >&2
+  exit 127
+fi
+for gate_engine in "$GODOT_BIN" "$GODOT_RELEASE_BIN"; do
+  args=()
+  if [[ "$gate_engine" == "$GODOT_RELEASE_BIN" ]]; then args=(-- --internal-dev); fi
+  set +e
+  timeout --kill-after=10 30 "$gate_engine" --headless --audio-driver Dummy --path "$PWD" res://tests/developer_gate.tscn "${args[@]}" >"$log_file" 2>&1
+  result=$?
+  set -e
+  cat "$log_file"
+  if (( result != 0 )); then exit "$result"; fi
+  if rg -q 'SCRIPT ERROR:|^ERROR:|FAIL' "$log_file"; then exit 1; fi
+  rg -q '^DEVELOPER GATE: PASS' "$log_file"
 done

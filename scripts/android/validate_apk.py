@@ -20,7 +20,7 @@ manifest = run('aapt', 'dump', 'xmltree', apk, 'AndroidManifest.xml')
 signature = run('apksigner', 'verify', '--verbose', '--print-certs', apk)
 alignment = run('zipalign', '-c', '-v', '4', apk)
 assert "package: name='com.kawanangames.kawananisland'" in badging
-assert "versionCode='3'" in badging and "versionName='0.6.0-dev'" in badging
+assert "versionCode='4'" in badging and "versionName='0.7.0-dev'" in badging
 assert "application-label:'Kawanan Island'" in badging
 assert "native-code: 'arm64-v8a'" in badging
 assert 'application-debuggable' in badging
@@ -37,6 +37,8 @@ with zipfile.ZipFile(apk) as z:
     assert 'assets/licenses/Godot-LICENSE.txt' in names
     assert 'assets/licenses/Godot-COPYRIGHT.txt' in names
     assert 'assets/addons/proton_scatter/LICENSE' in names
+    assert b'internal_dev' in z.read('assets/project.binary'), 'Missing internal development feature'
+    assert any(n.startswith('assets/ui/developer/') for n in names), 'Missing developer tools'
     assert 'classes.dex' in names and 'AndroidManifest.xml' in names
     assert 'lib/arm64-v8a/libgodot_android.so' in names
     assert any(n.startswith('assets/') and 'main_game' in n for n in names), 'Missing game scene'
@@ -51,8 +53,8 @@ for suffix, value in [('badging.txt',badging), ('manifest.txt',manifest), ('sign
 report = {
     'apk': apk.name, 'bytes': apk.stat().st_size,
     'sha256': hashlib.file_digest(apk.open('rb'), 'sha256').hexdigest(),
-    'package': 'com.kawanangames.kawananisland', 'version': '0.6.0-dev',
-    'abis': abis, 'permissions': permissions, 'debuggable': True,
+    'package': 'com.kawanangames.kawananisland', 'version': '0.7.0-dev',
+    'abis': abis, 'permissions': permissions, 'debuggable': True, 'internal_development_feature': True,
     'orientation': 'landscape', 'signature_v2_verified': True,
     'zip_crc_and_alignment': 'passed', 'physical_device_tested': False,
 }

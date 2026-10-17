@@ -20,6 +20,10 @@ func _ready() -> void:
 
 
 func change_energy(amount:float) -> void:
+	if DeveloperTools.needs_protected():
+		current_energy = MAX_ENERGY
+		EventSystem.PLA_energy_updated.emit(MAX_ENERGY, current_energy)
+		return
 	current_energy += amount
 	
 	if current_energy <= 0:
@@ -30,6 +34,8 @@ func change_energy(amount:float) -> void:
 
 
 func change_health(amount:float) -> void:
+	if amount < 0 and DeveloperTools.damage_protected():
+		return
 	current_health = clampf(current_health + amount, 0, MAX_HEALTH)
 	EventSystem.PLA_health_updated.emit(MAX_HEALTH, current_health)
 	

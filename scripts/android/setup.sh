@@ -60,6 +60,9 @@ for name in ['Godot_v4.4-stable_linux.x86_64.zip', 'Godot_v4.4-stable_export_tem
                 binary.write_bytes(z.read(binary.name))
                 binary.chmod(0o755)
         else:
+            release = p/'linux_release.x86_64'
+            release.write_bytes(z.read('templates/linux_release.x86_64'))
+            release.chmod(0o755)
             out = pathlib.Path(os.environ['XDG_DATA_HOME'])/'godot/export_templates/4.4.stable'
             out.mkdir(parents=True, exist_ok=True)
             for resource in ['android_debug.apk', 'android_release.apk', 'version.txt']:

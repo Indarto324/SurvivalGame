@@ -104,7 +104,7 @@ func input_vector() -> Vector2:
 	return (Input.get_vector("move_left", "move_right", "move_forward", "move_backward") + movement).limit_length()
 
 func pressed(action: String) -> bool:
-	return held.get(action, 0) > 0 or Input.is_action_pressed(action)
+	return held.get(action, 0) > 0 or (InputMap.has_action(action) and Input.is_action_pressed(action))
 
 func just_pressed(action: String) -> bool:
 	if pending.has(action):
@@ -166,6 +166,11 @@ func configure_layout(area: Rect2) -> void:
 		buttons[key] = Rect2(Vector2(area.get_center().x + (index-1.5)*104*u, area.position.y + 16*u), Vector2(96, 56)*u)
 	for index in 9:
 		buttons["slot_%d" % index] = Rect2(Vector2(area.get_center().x - 394*u + index*88*u, bottom-94*u), Vector2(84, 84)*u)
+	if DeveloperTools.available():
+		buttons["developer"] = Rect2(area.position + Vector2(16, 110)*u, Vector2(110, 60)*u)
+		if DeveloperTools.is_flying():
+			buttons["fly_up"] = Rect2(Vector2(right-202*u, bottom-376*u), Vector2(80,80)*u)
+			buttons["fly_down"] = Rect2(Vector2(right-110*u, bottom-376*u), Vector2(80,80)*u)
 	if is_instance_valid(surface):
 		surface.queue_redraw()
 
@@ -241,13 +246,15 @@ func release_finger(index: int) -> void:
 	surface.queue_redraw()
 
 func activate(role: String) -> void:
-	if role == "craft" or role == "inventory":
+	if role == "developer":
+		DeveloperTools.toggle_panel()
+	elif role == "craft" or role == "inventory":
 		EventSystem.BUL_create_bulletin.emit(BulletinConfig.Keys.CraftingMenu)
 	elif role == "pause":
 		EventSystem.BUL_create_bulletin.emit(BulletinConfig.Keys.PauseMenu)
 	elif role.begins_with("slot_"):
 		EventSystem.EQU_hotkey_pressed.emit(role.trim_prefix("slot_").to_int() + 1)
-	elif role == "sprint":
+	elif role in ["sprint", "fly_up", "fly_down"]:
 		held[role] = held.get(role, 0) + 1
 	else:
 		pending[role] = true
@@ -281,7 +288,7 @@ func draw_controls(canvas: Control) -> void:
 			var point := camera.unproject_position(interaction_target.global_position)
 			canvas.draw_arc(point, 18*u, 0, TAU, 24, Color.CYAN, 3*u, true)
 		canvas.draw_rect(buttons["interact"], Color.CYAN, false, 4*u)
-	var labels := {"jump":"Jump", "sprint":"Sprint", "interact":"Interact", "use_equipped_item":"Use", "craft":"Craft", "inventory":"Bag", "pause":"Pause"}
+	var labels := {"jump":"Jump", "sprint":"Sprint", "interact":"Interact", "use_equipped_item":"Use", "craft":"Craft", "inventory":"Bag", "pause":"Pause", "developer":"DEV", "fly_up":"Up", "fly_down":"Down"}
 	for key in buttons:
 		var rect: Rect2 = buttons[key]
 		canvas.draw_style_box(down_style if key in fingers.values() else idle_style, rect)
