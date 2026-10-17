@@ -7,7 +7,7 @@ class_name EquippableItem
 func _ready() -> void:
 	for child in $MeshHolder.get_children():
 		if child is VisualInstance3D:
-			child.layers = 2 # equippable camera visual layer
+			child.layers = 1 # Single world camera; no first-person overlay.
 
 
 func try_to_use() -> void:

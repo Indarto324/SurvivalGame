@@ -1,4 +1,6 @@
-# SurvivalGame
+# Kawanan Island
+
+Godot 4.4 third-person survival prototype, developed from SurvivalGame on the `kawanan-island` branch. See [Sprint 002](docs/SPRINT_002.md) for controls, camera/equipment design, validation and remaining limitations, and [licensing review](docs/LICENSING_REVIEW.md) before distribution.
 
 Not an official repo, here I am just following the Godot course by [Eerik Hirvonen](https://www.udemy.com/user/eerik-hirvonen/)
 
@@ -71,7 +73,7 @@ The game uses a centralized event system that acts as a global autoload. All maj
 | **Player** | `player.gd` | Main character controller (extends CharacterBody3D) |
 | ItemHolder | `item_holder.gd` | Manages equipped item visuals |
 | InteractionRayCast | `interaction_ray_cast.gd` | Handles object interaction detection |
-| MainCamera | `main_camera.gd` | First-person camera controller |
+| MainCamera | `main_camera.gd` | Third-person orbit/follow camera rig |
 
 **Player Features**:
 - Movement speeds: normal (3.0 u/s), sprint (5.0 u/s)
@@ -141,7 +143,7 @@ EquippableItem (Base - extends Node3D)
 #### EquippableItem
 **Base Class**: Node3D
 - Manages animations via AnimationPlayer
-- Visual layer management (layer 2 for equippable camera)
+- World-space item rendering (layer 1, single gameplay camera)
 - `try_to_use()` - plays animation
 
 #### EquippableWeapon

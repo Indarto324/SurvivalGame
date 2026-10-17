@@ -107,3 +107,7 @@ use_equipped_item={
 3d_physics/layer_6="small_rigid_pickuppable"
 3d_physics/layer_7="static_body"
 3d_physics/layer_8="water"
+
+[navigation]
+
+3d/merge_rasterizer_cell_scale=0.001

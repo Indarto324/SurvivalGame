@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bb4ajqrspiuc8"]
+[gd_scene load_steps=19 format=3 uid="uid://bb4ajqrspiuc8"]
 
 [ext_resource type="Script" uid="uid://cim3fir67nrhp" path="res://actors/player/player.gd" id="1_u4shn"]
 [ext_resource type="Script" uid="uid://b65ggtgyjs8kq" path="res://actors/player/interaction_ray_cast.gd" id="2_3wla4"]
@@ -13,6 +13,41 @@
 radius = 0.25
 height = 1.8
 
+[sub_resource type="SphereShape3D" id="CameraShape"]
+radius = 0.2
+
+[sub_resource type="StandardMaterial3D" id="Clothes"]
+albedo_color = Color(0.16, 0.45, 0.48, 1)
+
+[sub_resource type="StandardMaterial3D" id="Skin"]
+albedo_color = Color(0.65, 0.4, 0.24, 1)
+
+[sub_resource type="StandardMaterial3D" id="Face"]
+albedo_color = Color(0.08, 0.1, 0.12, 1)
+
+[sub_resource type="BoxMesh" id="TorsoMesh"]
+size = Vector3(0.48, 0.7, 0.3)
+material = SubResource("Clothes")
+
+[sub_resource type="SphereMesh" id="HeadMesh"]
+radius = 0.23
+height = 0.46
+radial_segments = 8
+rings = 4
+material = SubResource("Skin")
+
+[sub_resource type="BoxMesh" id="FaceMesh"]
+size = Vector3(0.24, 0.06, 0.08)
+material = SubResource("Face")
+
+[sub_resource type="BoxMesh" id="LimbMesh"]
+size = Vector3(0.19, 0.6, 0.24)
+material = SubResource("Clothes")
+
+[sub_resource type="BoxMesh" id="ArmMesh"]
+size = Vector3(0.16, 0.65, 0.2)
+material = SubResource("Skin")
+
 [node name="Player" type="CharacterBody3D" groups=["Player"]]
 collision_layer = 2
 collision_mask = 81
@@ -21,40 +56,63 @@ script = ExtResource("1_u4shn")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_1tkb2")
 
-[node name="Head" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.649716, 0)
-
-[node name="MainCamera" type="Camera3D" parent="Head"]
-cull_mask = 1048573
+[node name="CameraRig" type="Node3D" parent="."]
+position = Vector3(0, 0.65, 0)
 script = ExtResource("2_ofptj")
 
-[node name="InteractionRayCast" type="RayCast3D" parent="Head"]
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraRig"]
+spring_length = 4.0
+margin = 0.15
+collision_mask = 113
+shape = SubResource("CameraShape")
+
+[node name="FollowCamera" type="Camera3D" parent="CameraRig/SpringArm3D"]
+current = true
+near = 0.1
+fov = 65.0
+
+[node name="InteractionRayCast" type="RayCast3D" parent="."]
 unique_name_in_owner = true
-target_position = Vector3(2.08165e-12, 2.08165e-12, -2.4)
-collision_mask = 4
+position = Vector3(0, 0.5, 0)
+target_position = Vector3(0, 0, -2.4)
+collision_mask = 117
 collide_with_areas = true
 script = ExtResource("2_3wla4")
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="Head"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch = true
+[node name="CharacterVisuals" type="Node3D" parent="."]
 
-[node name="SubViewport" type="SubViewport" parent="Head/SubViewportContainer"]
-transparent_bg = true
-handle_input_locally = false
-gui_disable_input = true
-size = Vector2i(1920, 1080)
-render_target_update_mode = 4
+[node name="Torso" type="MeshInstance3D" parent="CharacterVisuals"]
+position = Vector3(0, 0.05, 0)
+mesh = SubResource("TorsoMesh")
 
-[node name="EquippableCamera" type="Camera3D" parent="Head/SubViewportContainer/SubViewport"]
-unique_name_in_owner = true
-cull_mask = 2
+[node name="Head" type="MeshInstance3D" parent="CharacterVisuals"]
+position = Vector3(0, 0.65, 0)
+mesh = SubResource("HeadMesh")
 
-[node name="ItemHolder" type="Node3D" parent="Head/SubViewportContainer/SubViewport/EquippableCamera"]
+[node name="Face" type="MeshInstance3D" parent="CharacterVisuals"]
+position = Vector3(0, 0.66, -0.19)
+mesh = SubResource("FaceMesh")
+
+[node name="LeftLeg" type="MeshInstance3D" parent="CharacterVisuals"]
+position = Vector3(-0.13, -0.58, 0)
+mesh = SubResource("LimbMesh")
+
+[node name="RightLeg" type="MeshInstance3D" parent="CharacterVisuals"]
+position = Vector3(0.13, -0.58, 0)
+mesh = SubResource("LimbMesh")
+
+[node name="LeftArm" type="MeshInstance3D" parent="CharacterVisuals"]
+position = Vector3(-0.34, 0.05, 0)
+mesh = SubResource("ArmMesh")
+
+[node name="RightArm" type="MeshInstance3D" parent="CharacterVisuals"]
+position = Vector3(0.34, 0.05, 0)
+mesh = SubResource("ArmMesh")
+
+[node name="EquipmentPivot" type="Node3D" parent="."]
+position = Vector3(0, 0.65, 0)
+
+[node name="ItemHolder" type="Node3D" parent="EquipmentPivot"]
 unique_name_in_owner = true
 script = ExtResource("3_a5bbk")
 
