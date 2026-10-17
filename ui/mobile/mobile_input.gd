@@ -26,6 +26,7 @@ var idle_style: StyleBoxFlat
 var down_style: StyleBoxFlat
 var hotbar_keys: Array = []
 var hotbar_icons: Array[Texture2D] = []
+var interaction_target: Interactable
 var active_slot = null
 var selected_slot: Control
 var inventory_menu: Control
@@ -115,6 +116,8 @@ func just_pressed(action: String) -> bool:
 	return Input.is_action_just_pressed(action)
 
 func _process(delta: float) -> void:
+	if can_control() and is_instance_valid(interaction_target):
+		surface.queue_redraw()
 	if enabled and OS.has_feature("android"):
 		safe_check_elapsed += delta
 		if safe_check_elapsed >= 0.5:
@@ -261,12 +264,23 @@ func update_active(index) -> void:
 	active_slot = index
 	surface.queue_redraw()
 
+func set_interaction_target(target: Interactable) -> void:
+	if interaction_target != target:
+		interaction_target = target
+		surface.queue_redraw()
+
 func draw_controls(canvas: Control) -> void:
 	if not can_control():
 		return
 	var u := safe_rect.size.y / 720.0
 	canvas.draw_circle(joystick_center, joystick_radius, Color(0.05, 0.12, 0.15, 0.65))
 	canvas.draw_circle(joystick_center + movement * joystick_radius, 30*u, Color(0.6, 0.85, 0.85, 0.9))
+	if is_instance_valid(interaction_target):
+		var camera := get_viewport().get_camera_3d()
+		if camera != null and not camera.is_position_behind(interaction_target.global_position):
+			var point := camera.unproject_position(interaction_target.global_position)
+			canvas.draw_arc(point, 18*u, 0, TAU, 24, Color.CYAN, 3*u, true)
+		canvas.draw_rect(buttons["interact"], Color.CYAN, false, 4*u)
 	var labels := {"jump":"Jump", "sprint":"Sprint", "interact":"Interact", "use_equipped_item":"Use", "craft":"Craft", "inventory":"Bag", "pause":"Pause"}
 	for key in buttons:
 		var rect: Rect2 = buttons[key]

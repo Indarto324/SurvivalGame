@@ -51,6 +51,20 @@ func check_build_validity() -> bool:
 		
 		return false
 	
+	if MobileInput.enabled:
+		# A level follow camera otherwise points the short placement ray over
+		# the ground. Keep the existing preview/obstacle checks, casting down
+		# at a nearby point along camera yaw when its direct ray has no hit.
+		var forward := -global_basis.z
+		forward.y = 0
+		var point := global_position + forward.normalized() * 2.5 + Vector3.UP * 0.5
+		var query := PhysicsRayQueryParameters3D.create(point, point + Vector3.DOWN * 3.0, item_place_ray.collision_mask)
+		var hit := get_world_3d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty():
+			constructable_area.global_position = hit.position
+			var sight := PhysicsRayQueryParameters3D.create(global_position, hit.position + Vector3.UP * 0.05, 113)
+			var blocked := get_world_3d().direct_space_state.intersect_ray(sight)
+			return obstacles.is_empty() and blocked.is_empty()
 	constructable_area.global_position = item_place_ray.to_global(item_place_ray.target_position)
 	return false
 
