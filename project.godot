@@ -10,9 +10,10 @@ config_version=5
 
 [application]
 
-config/name="SurvivalGame"
+config/name="Kawanan Island"
+config/version="0.4.0-dev"
 run/main_scene="res://game/main_game.tscn"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -21,8 +22,6 @@ EventSystem="*res://game/event_system.gd"
 MobileInput="*res://ui/mobile/mobile_input.gd"
 
 [display]
-
-window/handheld/orientation=0
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
@@ -115,11 +114,8 @@ use_equipped_item={
 
 3d/merge_rasterizer_cell_scale=0.001
 
-[input_devices]
-
-pointing/emulate_mouse_from_touch=true
-pointing/emulate_touch_from_mouse=false
-
 [rendering]
 
-renderer/rendering_method.mobile="mobile"
+renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true
+scaling_3d/scale.mobile=0.75

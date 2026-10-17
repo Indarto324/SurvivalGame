@@ -1,0 +1,44 @@
+name: Android internal debug APK
+on:
+  push:
+    branches: [kawanan-island]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    if: github.ref == 'refs/heads/kawanan-island'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      TOOLS_DIR: ${{ github.workspace }}/../kawanan-tools
+      XDG_DATA_HOME: ${{ github.workspace }}/../kawanan-data
+      XDG_CONFIG_HOME: ${{ github.workspace }}/../kawanan-config
+      XDG_CACHE_HOME: ${{ github.workspace }}/../kawanan-cache
+      ANDROID_USER_HOME: ${{ github.workspace }}/../kawanan-android-user
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Vulkan and virtual display dependencies
+        run: sudo apt-get update && sudo apt-get install -y xvfb mesa-vulkan-drivers
+      - name: Install verified Godot and Android tools
+        run: |
+          bash scripts/android/setup.sh
+          echo "JAVA_HOME=$TOOLS_DIR/jdk-17.0.18+8" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=$TOOLS_DIR/android-sdk" >> "$GITHUB_ENV"
+          echo "GODOT_BIN=$TOOLS_DIR/godot-4.4/Godot_v4.4-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Import resources with Vulkan
+        run: |
+          mkdir -p builds/android
+          xvfb-run -a "$GODOT_BIN" --audio-driver Dummy --editor --import > builds/android/import.log 2>&1
+      - name: Run Sprint 001, 002 and 003 regressions
+        run: bash tests/run.sh > builds/android/regressions.log 2>&1
+      - name: Export and inspect signed debug APK
+        run: bash scripts/android/build.sh > builds/android/build.log 2>&1
+      - name: Upload internal test build and validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kawanan-island-debug-${{ github.sha }}
+          path: builds/android/
+          if-no-files-found: error
+          retention-days: 7
