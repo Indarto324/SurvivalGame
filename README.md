@@ -1,6 +1,6 @@
 # Kawanan Island
 
-Godot 4.4 third-person survival prototype, developed from SurvivalGame on the `kawanan-island` branch. See [Sprint 002](docs/SPRINT_002.md) for controls, camera/equipment design, validation and remaining limitations, and [licensing review](docs/LICENSING_REVIEW.md) before distribution.
+Godot 4.4 third-person survival prototype, developed from SurvivalGame on the `kawanan-island` branch. See [Sprint 003](docs/SPRINT_003.md) for Android touch controls and validation, [Sprint 002](docs/SPRINT_002.md) for camera/equipment design, and [licensing review](docs/LICENSING_REVIEW.md) before distribution.
 
 Not an official repo, here I am just following the Godot course by [Eerik Hirvonen](https://www.udemy.com/user/eerik-hirvonen/)
 

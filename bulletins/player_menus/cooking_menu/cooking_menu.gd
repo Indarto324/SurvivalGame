@@ -86,5 +86,5 @@ func finished_cooking() -> void:
 func close() -> void:
 	EventSystem.BUL_destroy_bulletin.emit(BulletinConfig.Keys.CookingMenu)
 	EventSystem.PLA_unfreeze_player.emit()
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	MobileInput.capture_mouse()
 	EventSystem.SFX_play_sfx.emit(SFXConfig.Keys.UIClick)

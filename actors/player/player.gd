@@ -24,12 +24,13 @@ var is_sprinting := false
 
 
 func _enter_tree() -> void:
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	MobileInput.capture_mouse()
 	EventSystem.PLA_freeze_player.connect(set_freeze.bind(true))
 	EventSystem.PLA_unfreeze_player.connect(set_freeze.bind(false))
 
 
 func _ready() -> void:
+	MobileInput.set_frozen(false)
 	EventSystem.HUD_show_hud.emit()
 
 
@@ -55,17 +56,18 @@ func _physics_process(delta: float) -> void:
 	move(delta)
 	check_walking_consumption(delta)
 	
-	if Input.is_action_just_pressed("use_equipped_item"):
+	if MobileInput.just_pressed("use_equipped_item"):
 		character_visuals.rotation.y = camera_rig.rotation.y
 		equipment_pivot.rotation = camera_rig.rotation
 		item_holder.try_to_use_item()
 
 
 func move(delta: float) -> void:
+	var jump_requested := MobileInput.just_pressed("jump")
 	if is_on_floor():
-		is_sprinting = Input.is_action_pressed("sprint")
+		is_sprinting = MobileInput.pressed("sprint")
 		
-		if Input.is_action_just_pressed("jump"):
+		if jump_requested:
 			velocity.y = jump_velocity
 		
 		if velocity != Vector3.ZERO and footstep_audio_timer.is_stopped():
@@ -83,7 +85,7 @@ func move(delta: float) -> void:
 			is_grounded = false
 	
 	var speed := normal_speed if not is_sprinting else sprint_speed
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	var input_dir := MobileInput.input_vector()
 	var direction := (Basis(Vector3.UP, camera_rig.global_rotation.y) * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if not direction.is_zero_approx():
 		character_visuals.rotation.y = lerp_angle(character_visuals.rotation.y, atan2(-direction.x, -direction.z) - global_rotation.y, 1.0 - exp(-15.0 * delta))
@@ -92,8 +94,8 @@ func move(delta: float) -> void:
 	else:
 		equipment_pivot.rotation = Vector3(camera_rig.rotation.x, character_visuals.rotation.y, 0)
 	
-	velocity.z = direction.z * speed
-	velocity.x = direction.x * speed
+	velocity.z = direction.z * speed * input_dir.length()
+	velocity.x = direction.x * speed * input_dir.length()
 	
 	move_and_slide()
 
@@ -108,6 +110,8 @@ func check_walking_consumption(delta:float) -> void:
 
 
 func _input(event) -> void:
+	if MobileInput.enabled and event is InputEventMouse and event.device == -1:
+		return
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
 	if event is InputEventMouseButton and event.pressed:

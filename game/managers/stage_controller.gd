@@ -20,7 +20,7 @@ func start_stage_change_sequence(stage_key:StageConfig.Keys) -> void:
 	
 	is_stage_changing = true
 	
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	MobileInput.capture_mouse()
 	
 	EventSystem.GAM_game_fade_in.emit(FADE_TIME, game_faded_in.bind(stage_key), true)
 

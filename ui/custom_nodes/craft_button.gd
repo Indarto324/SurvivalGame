@@ -13,13 +13,14 @@ var requirements
 
 
 func _ready() -> void:
+	add_to_group("touch_craft_info")
 	button.mouse_entered.connect(send_crafting_info)
 	button.mouse_exited.connect(hide_crafting_info)
 
 
 func send_crafting_info() -> void:
 	# Do not send when dragging the mouse
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not MobileInput.enabled:
 		return
 	EventSystem.INV_set_item_info_label.emit(display_name + "\n\n" + description)
 	EventSystem.INV_set_extra_info_label.emit(requirements)

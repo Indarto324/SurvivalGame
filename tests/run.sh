@@ -8,8 +8,8 @@ case "$("$GODOT_BIN" --version)" in
 esac
 log_file=$(mktemp)
 trap 'rm -f "$log_file"' EXIT
-# Run both shipped regression scenes and reject errors even on exit zero.
-for sprint in 001 002; do
+# Run all shipped regression scenes and reject errors even on exit zero.
+for sprint in 001 002 003; do
   set +e
   timeout --kill-after=10 180 "$GODOT_BIN" --headless --audio-driver Dummy --path "$PWD" "res://tests/sprint_${sprint}.tscn" >"$log_file" 2>&1
   result=$?

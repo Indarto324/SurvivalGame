@@ -24,6 +24,7 @@ func update_aim() -> void:
 	force_raycast_update()
 
 func check_interaction() -> void:
+	var interact_requested := MobileInput.just_pressed("interact")
 	update_aim()
 	var target: Interactable = get_collider() as Interactable if is_colliding() else null
 	if target != current_interactable or (prompt_visible and not is_instance_valid(target)):
@@ -32,7 +33,7 @@ func check_interaction() -> void:
 		if is_instance_valid(target):
 			prompt_visible = true
 			EventSystem.BUL_create_bulletin.emit(BulletinConfig.Keys.InteractionPrompt, target.prompt)
-	if is_instance_valid(target) and Input.is_action_just_pressed("interact"):
+	if is_instance_valid(target) and interact_requested:
 		target.start_interaction()
 
 func clear_prompt() -> void:

@@ -12,6 +12,7 @@ var description
 
 
 func _ready() -> void:
+	add_to_group("touch_inventory_targets")
 	mouse_entered.connect(send_description)
 	mouse_exited.connect(hide_description)
 
@@ -78,7 +79,7 @@ func _can_drop_data(_at_position: Vector2, slot: Variant) -> bool:
 			return ItemConfig.get_item_resource(item_key).is_equippable
 		
 		if slot is StartingCookingSlot:
-			return ItemConfig.get_item_resource(item_key).cooking_recipe_resource != null
+			return ItemConfig.get_item_resource(item_key).cooking_recipe != null
 		
 		if slot is FinalCookingSlot:
 			return false

@@ -1,5 +1,10 @@
 extends Stage
 
+func _ready() -> void:
+	MobileInput.fit_menu($MainMenuUI)
+	super()
+
+
 func _on_start_button_pressed() -> void:
 	EventSystem.STA_change_stage.emit(StageConfig.Keys.Island)
 

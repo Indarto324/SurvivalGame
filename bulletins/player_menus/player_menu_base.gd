@@ -8,6 +8,7 @@ class_name PlayerMenuBase
 
 
 func _ready() -> void:
+	MobileInput.prepare_inventory_menu(self)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	EventSystem.INV_inventory_updated.connect(update_inventory)
 	EventSystem.INV_set_item_info_label.connect(set_info_label.bind(item_info_label))
@@ -29,5 +30,5 @@ func set_info_label(text:String, label:Label) -> void:
 func close() -> void:
 	EventSystem.BUL_destroy_bulletin.emit(BulletinConfig.Keys.CraftingMenu)
 	EventSystem.PLA_unfreeze_player.emit()
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	MobileInput.capture_mouse()
 	EventSystem.SFX_play_sfx.emit(SFXConfig.Keys.UIClick)

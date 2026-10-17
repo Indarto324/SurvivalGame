@@ -4,6 +4,10 @@ class_name ScrapItemSlot
 signal item_scrapped
 
 
+func _ready() -> void:
+	add_to_group("touch_inventory_targets")
+
+
 func _can_drop_data(_at_position: Vector2, slot: Variant) -> bool:
 	return slot is InventorySlot and not slot is StartingCookingSlot and not slot is FinalCookingSlot
 

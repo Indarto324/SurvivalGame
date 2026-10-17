@@ -32,7 +32,7 @@ func fade_in() -> void:
 
 func _on_resume_button_pressed() -> void:
 	EventSystem.HUD_show_hud.emit()
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	MobileInput.capture_mouse()
 	get_tree().paused = false
 	fade_out()
 
@@ -43,4 +43,5 @@ func _on_settings_button_pressed() -> void:
 
 
 func _on_exit_button_pressed() -> void:
+	get_tree().paused = false
 	EventSystem.STA_change_stage.emit(StageConfig.Keys.MainMenu)

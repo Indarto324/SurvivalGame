@@ -10,6 +10,7 @@ const BG_FADE_TIME = 0.25
 
 
 func _ready() -> void:
+	MobileInput.fit_menu(self)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	background.color = TRANSPARENT_COLOR
 	fade_in()
