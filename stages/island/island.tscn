@@ -1,4 +1,4 @@
-[gd_scene load_steps=72 format=3 uid="uid://tlch14isqovy"]
+[gd_scene load_steps=73 format=3 uid="uid://tlch14isqovy"]
 
 [ext_resource type="Script" uid="uid://dbv0ybw84py56" path="res://stages/stage.gd" id="1_7cv84"]
 [ext_resource type="PackedScene" uid="uid://bjpk8ioxilyen" path="res://meshes/terrain.tscn" id="1_7gkuu"]
@@ -20,6 +20,8 @@
 [ext_resource type="PackedScene" uid="uid://bd6xdiisrxhdd" path="res://actors/animals/wolf.tscn" id="11_qpcsv"]
 [ext_resource type="Script" uid="uid://cck63jpjb1dbs" path="res://game/managers/spawner.gd" id="13_kwidf"]
 [ext_resource type="Script" uid="uid://bgeuh3u2nt4qe" path="res://game/managers/day_night_cycle_anim_player.gd" id="17_5bael"]
+
+[ext_resource type="Script" path="res://stages/island/expanded_world.gd" id="18_world"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_cgc8o"]
 geometry_parsed_geometry_type = 1
@@ -637,6 +639,9 @@ script = ExtResource("2_4s63g")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NavigationRegion3D/Terrain/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_rqk8d")
 
+[node name="ExpandedWorld" type="Node3D" parent="NavigationRegion3D"]
+script = ExtResource("18_world")
+
 [node name="ScatterTrees" type="Node3D" parent="NavigationRegion3D"]
 script = ExtResource("2_1mcol")
 render_mode = 1
@@ -784,6 +789,8 @@ Performance/chunk_dimensions = Vector3(15, 15, 15)
 [node name="ScatterItem" type="Node3D" parent="Items/ScatterGrass"]
 script = ExtResource("7_23s1g")
 override_cast_shadow = 0
+visibility_range_end = 50.0
+visibility_range_end_margin = 8.0
 path = "res://meshes/grass.tscn"
 
 [node name="ScatterShape" type="Node3D" parent="Items/ScatterGrass"]
