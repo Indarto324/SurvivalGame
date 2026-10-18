@@ -10,6 +10,8 @@ const DETAIL_RADIUS := 80.0
 const UNLOAD_RADIUS := 112.0
 const POND := Vector2(105, -62)
 const PATH := [Vector2(36, 30), Vector2(70, 24), Vector2(104, 12), Vector2(112, -22), Vector2(76, -40), Vector2(75, -67), Vector2(95, -96), Vector2(90, -112), Vector2(69, -105)]
+const POIS := {"Main Beach Camp":Vector2(-23,37),"Deep Jungle":Vector2(119,24),"Northern Viewpoint":Vector2(69,-105),"Freshwater Spring":Vector2(105,-36),"Rocky Coast Viewpoint":Vector2(128,53)}
+const WILDLIFE_HOMES := {"Cow5":Vector2(98,29),"Cow6":Vector2(79,-48),"Cow7":Vector2(126,66),"Wolf2":Vector2(95,-96),"Wolf3":Vector2(115,-8)}
 const SCENES := {
 	"tree": preload("res://objects/hittable_objects/hittable_tree.tscn"),
 	"fruit": preload("res://objects/fruit_bush.tscn"),
@@ -60,6 +62,9 @@ func _ready() -> void:
 	build_pond()
 	build_landmarks()
 	build_manifests()
+	var living = preload("res://stages/island/living_island.gd").new()
+	living.name = "LivingIsland"
+	add_child(living)
 	ready_for_play = true
 	refresh_details()
 
@@ -232,6 +237,33 @@ func build_landmarks() -> void:
 		body.add_child(collision)
 		landmark.add_child(body)
 
+func biome_at(p: Vector2) -> String:
+	var h := surface_height(p)
+	if h<1.1: return "beach"
+	if p.distance_to(POND)<48: return "freshwater"
+	if p.x>112 and p.y>35: return "rocky_coast"
+	if h>8 or p.y< -87: return "hills"
+	return "jungle"
+
+func resource_biome(kind: String, index: int) -> String:
+	match kind:
+		"tree": return "jungle"
+		"fruit": return "jungle" if index<9 else "freshwater"
+		"plant": return "jungle" if index<12 else "freshwater"
+		"mushroom": return "jungle" if index<12 else "freshwater"
+		"stick": return "beach" if index<28 else ("jungle" if index<36 else "freshwater")
+		"stone": return "beach" if index<18 else ("rocky_coast" if index<34 else "hills")
+		"coal": return "hills" if index<6 else "rocky_coast"
+		"flint": return "hills" if index<4 else "rocky_coast"
+	return "jungle"
+
+func clear_of_pois(p: Vector2) -> bool:
+	for point in POIS.values():
+		if p.distance_to(point)<6: return false
+	for point in WILDLIFE_HOMES.values():
+		if p.distance_to(point)<3: return false
+	return true
+
 func build_manifests() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 8008
@@ -240,10 +272,11 @@ func build_manifests() -> void:
 	for kind in ["tree","fruit","coal","flint","stick","stone","plant","mushroom"]:
 		var count: int = {"tree":64,"fruit":12,"coal":8,"flint":8,"stick":40,"stone":40,"plant":24,"mushroom":16}[kind]
 		for index in count:
-			for attempt in 160:
-				var p := Vector2(rng.randf_range(60,153),rng.randf_range(-140,106))
-				if kind == "tree" and (p.x<80 or p.x>135 or p.y< -35 or p.y>65): continue
-				if height_at(p)<1.0 or height_at(p)>13 or p.distance_to(POND)<30 or path_distance(p)<5: continue
+			var biome := resource_biome(kind,index)
+			for attempt in 240:
+				var bounds: Rect2 = {"beach":Rect2(60,55,93,55),"jungle":Rect2(80,-30,55,64),"freshwater":Rect2(64,-105,78,100),"hills":Rect2(60,-140,70,53),"rocky_coast":Rect2(114,36,39,70)}[biome]
+				var p := bounds.position+Vector2(rng.randf(),rng.randf())*bounds.size
+				if biome_at(p)!=biome or surface_height(p)< -1.5 or surface_height(p)>13 or p.distance_to(POND)<30 or path_distance(p)<5 or not clear_of_pois(p): continue
 				var key := Vector2i(floori(p.x/CHUNK_SIZE),floori(p.y/CHUNK_SIZE))
 				if not manifests.has(key): manifests[key] = []
 				var clear := true
@@ -251,13 +284,14 @@ func build_manifests() -> void:
 					for other in manifests[nearby_key]:
 						if Vector2(other.position.x,other.position.z).distance_to(p)<(3.0 if kind in ["tree","fruit","coal","flint"] or other.kind in ["tree","fruit","coal","flint"] else 1.0): clear = false
 				if not clear: continue
-				var record := {"kind":kind,"position":Vector3(p.x,surface_height(p)+.03,p.y),"yaw":rng.randf_range(0,TAU)}
+				var record := {"biome":biome,"kind":kind,"position":Vector3(p.x,surface_height(p)+.03,p.y),"yaw":rng.randf_range(0,TAU)}
 				manifests[key].append(record)
 				break
 	# Grass uses shared original geometry, no collision/shadows; only nearby
 	# chunks instantiate a MultiMesh. Exactly 1200 candidates, not per chunk.
 	for index in 1200:
-		var p := Vector2(rng.randf_range(60,153),rng.randf_range(-140,106))
+		if grass_instances>=451: break
+		var p := Vector2(rng.randf_range(75,135),rng.randf_range(-100,65))
 		if height_at(p)<1 or height_at(p)>13 or p.distance_to(POND)<30 or path_distance(p)<4: continue
 		var key := Vector2i(floori(p.x/CHUNK_SIZE),floori(p.y/CHUNK_SIZE))
 		if not manifests.has(key): manifests[key] = []
@@ -281,7 +315,7 @@ func _process(delta: float) -> void:
 	# Spread detail activation across frames. Terrain is already present.
 	if not detail_queue.is_empty():
 		activate_chunk(detail_queue.pop_front())
-	if nav_dirty and detail_queue.is_empty() and Time.get_ticks_msec()>=nav_refresh_at:
+	if nav_dirty and detail_queue.is_empty() and Time.get_ticks_msec()>=nav_refresh_at and get_parent().get_parent().scatter_nodes_ready>=get_parent().get_parent().scatter_nodes.size():
 		nav_dirty = false
 		get_parent().request_bake()
 
@@ -344,7 +378,7 @@ func activate_chunk(key: Vector2i) -> void:
 		var center := (Vector2(key)+Vector2(.5,.5))*CHUNK_SIZE
 		var grass := MultiMeshInstance3D.new()
 		grass.multimesh = multimesh
-		grass.material_override = grass_mesh.get_active_material(0)
+		grass.material_override = preload("res://stages/island/grass_wind.tres")
 		grass.position = Vector3(center.x,0,center.y)
 		grass.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		grass.visibility_range_end = 50

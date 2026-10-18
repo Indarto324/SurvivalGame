@@ -75,7 +75,7 @@ script = ExtResource("3_6gv57")
 
 [node name="HUD" parent="UILayer/HUDController" instance=ExtResource("9_x41ec")]
 
-[node name="MusicController" type="AudioStreamPlayer" parent="."]
+[node name="MusicController" type="AudioStreamPlayer" parent="." groups=["IslandMusic"]]
 bus = &"Music"
 script = ExtResource("4_o3ghp")
 

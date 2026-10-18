@@ -1,6 +1,7 @@
 extends NavigationRegion3D
 
 var rebake_pending := false
+var request_scheduled := false
 
 func _enter_tree() -> void:
 	EventSystem.GAM_update_navmesh.connect(request_bake)
@@ -9,6 +10,9 @@ func _ready() -> void:
 	# Terrain is built before scatter completes. Bake once for initial animal
 	# navigation as well as after construction; coalesce overlapping requests.
 	navigation_mesh.cell_size = 0.5
+	# Recast n-gon merging produced overlapping edges on the hill contours.
+	# Triangles preserve the same walkable surface without non-manifold edges.
+	navigation_mesh.vertices_per_polygon = 3
 	# Include all island ground/construction holders, not just this subtree.
 	get_parent().add_to_group("island_navigation_source")
 	navigation_mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_GROUPS_WITH_CHILDREN
@@ -17,6 +21,11 @@ func _ready() -> void:
 	bake_finished.connect(finished_bake)
 
 func request_bake() -> void:
+	if request_scheduled: return
+	request_scheduled = true
+	# Scatter/build nodes can still be queued for deletion in this frame.
+	await get_tree().process_frame
+	request_scheduled = false
 	if is_baking():
 		rebake_pending = true
 		return

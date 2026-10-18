@@ -16,9 +16,9 @@ esac
 log_file=$(mktemp)
 trap 'rm -f "$log_file"' EXIT
 # Run all shipped regression scenes and reject errors even on exit zero.
-for sprint in 001 002 003 005 006 007 008; do
+for sprint in 001 002 003 005 006 007 008 009; do
   args=()
-  if [[ "$sprint" == 007 || "$sprint" == 008 ]]; then args=(-- --internal-dev); fi
+  if [[ "$sprint" == 007 || "$sprint" == 008 || "$sprint" == 009 ]]; then args=(-- --internal-dev); fi
   set +e
   timeout --kill-after=10 180 "$GODOT_BIN" --headless --audio-driver Dummy --path "$PWD" "res://tests/sprint_${sprint}.tscn" "${args[@]}" >"$log_file" 2>&1
   result=$?
